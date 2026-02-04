@@ -57,10 +57,9 @@ async def send_card(message, card):
     text = f"**{card['title']}**\n\n{card['description']}"
     with open(f"cards/{card['image']}", "rb") as img:
         await message.answer_photo(
-            photo=img,
-            caption=text,
-            parse_mode="Markdown"
-        )
+    photo=img,
+    caption=text
+)
 
 
 async def main():
