@@ -1,20 +1,23 @@
 import asyncio
 import json
 import random
+import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-import os
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputFile
 
+# Берём токен из переменных окружения Railway
 TOKEN = os.getenv("BOT_TOKEN")
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
+# Загружаем все карты
 with open("cards.json", "r", encoding="utf-8") as f:
     CARDS = json.load(f)["cards"]
 
 
+# Клавиатура для главного меню
 def main_keyboard():
     return InlineKeyboardMarkup(
         inline_keyboard=[
@@ -24,6 +27,7 @@ def main_keyboard():
     )
 
 
+# /start
 @dp.message(Command("start"))
 async def start(message: types.Message):
     await message.answer(
@@ -32,6 +36,7 @@ async def start(message: types.Message):
     )
 
 
+# Кнопка "Карта дня"
 @dp.callback_query(lambda c: c.data == "day_card")
 async def day_card(callback: types.CallbackQuery):
     card = random.choice(CARDS)
@@ -39,6 +44,7 @@ async def day_card(callback: types.CallbackQuery):
     await callback.answer()
 
 
+# Кнопка "Ответ на вопрос"
 @dp.callback_query(lambda c: c.data == "question")
 async def ask_question(callback: types.CallbackQuery):
     await callback.message.answer(
@@ -47,21 +53,27 @@ async def ask_question(callback: types.CallbackQuery):
     await callback.answer()
 
 
+# Обработка любого текста как вопрос
 @dp.message()
 async def handle_question(message: types.Message):
+    # Игнорируем команды
+    if message.text.startswith("/"):
+        return
     card = random.choice(CARDS)
     await send_card(message, card)
 
 
+# Функция отправки карты
 async def send_card(message, card):
-    text = f"**{card['title']}**\n\n{card['description']}"
-    with open(f"cards/{card['image']}", "rb") as img:
-        await message.answer_photo(
-    photo=img,
-    caption=text
-)
+    text = f"{card['title']}\n\n{card['description']}"
+    photo = InputFile(f"cards/{card['image']}")
+    await message.answer_photo(
+        photo=photo,
+        caption=text
+    )
 
 
+# Запуск бота
 async def main():
     await dp.start_polling(bot)
 
