@@ -66,7 +66,8 @@ async def handle_question(message: types.Message):
 # Функция отправки карты
 async def send_card(message, card):
     text = f"{card['title']}\n\n{card['description']}"
-    photo = InputFile(f"cards/{card['image']}")
+    # Создаём InputFile корректно для aiogram 3.4+
+    photo = InputFile(path=f"cards/{card['image']}")
     await message.answer_photo(
         photo=photo,
         caption=text
