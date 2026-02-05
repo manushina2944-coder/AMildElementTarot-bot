@@ -4,7 +4,7 @@ import random
 import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, InputFile
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, FSInputFile
 
 # Берём токен из переменных окружения Railway
 TOKEN = os.getenv("BOT_TOKEN")
@@ -67,7 +67,7 @@ async def handle_question(message: types.Message):
 async def send_card(message, card):
     text = f"{card['title']}\n\n{card['description']}"
     # Создаём InputFile корректно для aiogram 3.4+
-    photo = InputFile(path=f"cards/{card['image']}")
+    photo = FSInputFile(path=f"cards/{card['image']}")
     await message.answer_photo(
         photo=photo,
         caption=text
