@@ -1,1 +1,10 @@
-
+{
+  "Mind_cards": [
+    {
+      "id": "Shuffle",
+      "title": "Дух леса",
+      "image": "Shuffle.jpg",
+      "description": "..."
+    }
+  ]
+}
