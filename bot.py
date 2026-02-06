@@ -36,7 +36,7 @@ def load_cards(path: str) -> list[dict]:
 
 # Колоды
 TAROT_CARDS = load_cards("cards.json")           # Таро
-MIND_CARDS = load_cards("mind_cards.json")       # Карты отклика/образы
+MIND_CARDS = load_cards("Mind_cards.json")       # Карты отклика/образы
 
 # Общий пул для "Карты дня"
 DAY_CARDS = TAROT_CARDS + MIND_CARDS
