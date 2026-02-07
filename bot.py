@@ -137,9 +137,7 @@ async def send_one_card(message: Message, card: Dict[str, Any], prefix: str = ""
     image = card.get("image", "")
     text = pick_description(card)
 
-    caption = "\n\n".join(
-        p for p in [f"{prefix}<b>{name}</b>" if name else "", text] if p
-    )
+    caption = "\n\n".join(p for p in [f"{prefix}<b>{name}</b>" if name else "", text] if p)
 
     path = os.path.join(IMAGES_DIR, image)
     if image and os.path.exists(path):
@@ -187,30 +185,34 @@ router = Router()
 
 @router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
-    await state.clear()
-    await message.answer(
-        "Привет 🤍\n\nВыбери следующий шаг:",
-        reply_markup=MAIN_MENU,
-    )
+    # Важно: НЕ state.clear(), чтобы не стирать data в FSM
+    await state.set_state(None)
+    await message.answer("Привет 🤍\n\nВыбери следующий шаг:", reply_markup=MAIN_MENU)
 
 
 @router.message(F.text == "🌿 Карта дня")
 async def day_card(message: Message, state: FSMContext):
-    await state.clear()
+    await state.set_state(None)
+
     cards = TAROT_CARDS + MIND_CARDS
     if not cards:
         await message.answer("Колоды пусты 🥺", reply_markup=MAIN_MENU)
         return
+
     await send_one_card(message, stable_choice_for_user_today(message.from_user.id, cards), "🌿 ")
+    await message.answer("Выбери следующий шаг:", reply_markup=MAIN_MENU)
 
 
 @router.message(F.text == "🫧 Карта отклика")
 async def mind_card(message: Message, state: FSMContext):
-    await state.clear()
+    await state.set_state(None)
+
     if not MIND_CARDS:
         await message.answer("Колода отклика пустая 🤍", reply_markup=MAIN_MENU)
         return
+
     await send_one_card(message, random.choice(MIND_CARDS), "🫧 ")
+    await message.answer("Выбери следующий шаг:", reply_markup=MAIN_MENU)
 
 
 @router.message(F.text == "🔮 Ответ на вопрос")
@@ -240,7 +242,8 @@ async def answer_question(message: Message, state: FSMContext):
     now_ts = datetime.datetime.now(datetime.timezone.utc).timestamp()
     offer = record_question_and_should_offer(message.from_user.id, now_ts)
 
-    await state.clear()
+    # Важно: НЕ state.clear(), чтобы не стирать seen_examples
+    await state.set_state(None)
 
     if not TAROT_CARDS:
         await message.answer("Колода Таро не подключена 🥺", reply_markup=MAIN_MENU)
@@ -253,6 +256,8 @@ async def answer_question(message: Message, state: FSMContext):
             "Хочешь разобрать ситуацию глубже через личную консультацию? 💬",
             reply_markup=CONSULT_KB,
         )
+    else:
+        await message.answer("Выбери следующий шаг:", reply_markup=MAIN_MENU)
 
 
 @router.callback_query(F.data == "deep_yes")
