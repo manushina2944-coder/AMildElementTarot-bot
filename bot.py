@@ -7,7 +7,7 @@ import asyncio
 import logging
 from zoneinfo import ZoneInfo
 from collections import defaultdict, deque
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from aiogram import Bot, Dispatcher, Router, F
 from aiogram.types import (
@@ -28,7 +28,7 @@ from aiogram.types.input_file import FSInputFile
 
 
 # -----------------------------
-# Логирование (Railway-friendly)
+# Логирование
 # -----------------------------
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -39,30 +39,29 @@ logger = logging.getLogger(__name__)
 # -----------------------------
 TOKEN = os.getenv("BOT_TOKEN") or os.getenv("TOKEN")
 if not TOKEN:
-    raise RuntimeError("Не найден BOT_TOKEN (или TOKEN) в переменных окружения Railway.")
+    raise RuntimeError("Не найден BOT_TOKEN (или TOKEN)")
 
-CARDS_JSON = "cards.json"            # Таро
-MIND_CARDS_JSON = "mind_cards.json"  # Карты отклика / образы
-IMAGES_DIR = "cards"                 # папка с картинками
+CARDS_JSON = "cards.json"
+MIND_CARDS_JSON = "mind_cards.json"
+IMAGES_DIR = "cards"
 
-QUESTIONS_WINDOW_SECONDS = 30 * 60   # 30 минут
-QUESTIONS_LIMIT = 5                  # после 5 вопросов показать предложение
-COOLDOWN_SECONDS = 6 * 60 * 60       # 6 часов охлаждение
-PAUSE_BEFORE_MENU_SECONDS = 2        # пауза перед возвратом к меню
+QUESTIONS_WINDOW_SECONDS = 30 * 60
+QUESTIONS_LIMIT = 5
+COOLDOWN_SECONDS = 6 * 60 * 60
+PAUSE_BEFORE_MENU_SECONDS = 2
 
-# Часовой пояс для "карты дня"
 USER_TZ = ZoneInfo("Europe/Amsterdam")
 
 
 # -----------------------------
-# Глобальные колоды (инициализируются в main)
+# Глобальные колоды
 # -----------------------------
 TAROT_CARDS: List[Dict[str, Any]] = []
 MIND_CARDS: List[Dict[str, Any]] = []
 
 
 # -----------------------------
-# FSM состояния
+# FSM
 # -----------------------------
 class AskQuestion(StatesGroup):
     waiting_for_question = State()
@@ -72,29 +71,14 @@ class AskQuestion(StatesGroup):
 # Загрузка колод
 # -----------------------------
 def load_cards(path: str) -> List[Dict[str, Any]]:
-    """
-    Ожидаем формат:
-    {
-      "cards": [
-        {
-          "name": "...",
-          "image": "file.jpg",
-          "description": "...",
-          "descriptions": ["вариант1", "вариант2"]   # опционально
-        }
-      ]
-    }
-    """
     if not os.path.exists(path):
-        raise FileNotFoundError(
-            f"Не найден файл: {path} (проверь, что он в корне репозитория рядом с bot.py)"
-        )
+        raise FileNotFoundError(f"Не найден файл {path}")
 
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     if "cards" not in data or not isinstance(data["cards"], list):
-        raise ValueError(f"{path} должен содержать ключ 'cards' со списком.")
+        raise ValueError(f"{path} должен содержать ключ 'cards'")
 
     return data["cards"]
 
@@ -107,7 +91,7 @@ def pick_description(card: Dict[str, Any]) -> str:
 
 
 # -----------------------------
-# Клавиатуры (кэшируем)
+# Клавиатуры
 # -----------------------------
 def _build_main_menu_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
@@ -117,8 +101,6 @@ def _build_main_menu_keyboard() -> ReplyKeyboardMarkup:
             [KeyboardButton(text="🫧 Карта отклика")],
         ],
         resize_keyboard=True,
-        one_time_keyboard=False,
-        input_field_placeholder="Выбери действие…",
     )
 
 
@@ -138,48 +120,43 @@ CONSULT_KB = _build_consult_keyboard()
 
 
 # -----------------------------
-# Стабильная карта дня
+# Карта дня
 # -----------------------------
 def stable_choice_for_user_today(user_id: int, cards: List[Dict[str, Any]]) -> Dict[str, Any]:
     today = datetime.datetime.now(USER_TZ).date().isoformat()
     seed = f"{user_id}:{today}"
-    h = hashlib.sha256(seed.encode("utf-8")).hexdigest()
-    idx = int(h, 16) % len(cards)
-    return cards[idx]
+    h = hashlib.sha256(seed.encode()).hexdigest()
+    return cards[int(h, 16) % len(cards)]
 
 
 # -----------------------------
 # Отправка карты
 # -----------------------------
-async def send_one_card(message: Message, card: Dict[str, Any], prefix: str = "") -> None:
-    name = str(card.get("name", "")).strip()
-    image = str(card.get("image", "")).strip()
+async def send_one_card(message: Message, card: Dict[str, Any], prefix: str = ""):
+    name = card.get("name", "")
+    image = card.get("image", "")
     text = pick_description(card)
 
-    caption_parts = []
-    if name:
-        caption_parts.append(f"{prefix}<b>{name}</b>")
-    if text:
-        caption_parts.append(text)
+    caption = "\n\n".join(
+        p for p in [f"{prefix}<b>{name}</b>" if name else "", text] if p
+    )
 
-    caption = "\n\n".join([p for p in caption_parts if p]).strip()
-    photo_path = os.path.join(IMAGES_DIR, image)
-
-    if image and os.path.exists(photo_path):
-        photo = FSInputFile(photo_path)
-        await message.answer_photo(photo=photo, caption=caption, reply_markup=MAIN_MENU)
-    else:
-        await message.answer(
-            (caption or "Карта выбрана, но файл изображения не найден 😅"),
+    path = os.path.join(IMAGES_DIR, image)
+    if image and os.path.exists(path):
+        await message.answer_photo(
+            photo=FSInputFile(path),
+            caption=caption,
             reply_markup=MAIN_MENU,
         )
+    else:
+        await message.answer(caption or "Карта без изображения 🤍", reply_markup=MAIN_MENU)
 
 
 # -----------------------------
-# Трекинг вопросов для предложения консультации
+# Счётчик вопросов
 # -----------------------------
 user_question_times: Dict[int, deque] = defaultdict(lambda: deque(maxlen=50))
-user_offer_until: Dict[int, float] = defaultdict(lambda: 0.0)
+user_offer_until: Dict[int, float] = defaultdict(float)
 
 
 def record_question_and_should_offer(user_id: int, now_ts: float) -> bool:
@@ -203,7 +180,7 @@ def record_question_and_should_offer(user_id: int, now_ts: float) -> bool:
 
 
 # -----------------------------
-# Роутер
+# Router
 # -----------------------------
 router = Router()
 
@@ -212,9 +189,7 @@ router = Router()
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
-        "Привет 🤍\n\n"
-        "Я могу дать тебе одну карту — бережно и поддерживающе.\n"
-        "Выбери следующий шаг:",
+        "Привет 🤍\n\nВыбери следующий шаг:",
         reply_markup=MAIN_MENU,
     )
 
@@ -222,96 +197,68 @@ async def cmd_start(message: Message, state: FSMContext):
 @router.message(F.text == "🌿 Карта дня")
 async def day_card(message: Message, state: FSMContext):
     await state.clear()
-
-    all_cards = TAROT_CARDS + MIND_CARDS
-    if not all_cards:
-        await message.answer("Пока нет ни одной карты в колодах 🥺", reply_markup=MAIN_MENU)
+    cards = TAROT_CARDS + MIND_CARDS
+    if not cards:
+        await message.answer("Колоды пусты 🥺", reply_markup=MAIN_MENU)
         return
-
-    card = stable_choice_for_user_today(message.from_user.id, all_cards)
-    await send_one_card(message, card, prefix="🌿 ")
+    await send_one_card(message, stable_choice_for_user_today(message.from_user.id, cards), "🌿 ")
 
 
 @router.message(F.text == "🫧 Карта отклика")
 async def mind_card(message: Message, state: FSMContext):
     await state.clear()
-
     if not MIND_CARDS:
-        await message.answer(
-            "🫧 Колода отклика пока наполняется. Загляни чуть позже 🤍",
-            reply_markup=MAIN_MENU,
-        )
+        await message.answer("Колода отклика пустая 🤍", reply_markup=MAIN_MENU)
         return
-
-    card = random.choice(MIND_CARDS)
-    await send_one_card(message, card, prefix="🫧 ")
+    await send_one_card(message, random.choice(MIND_CARDS), "🫧 ")
 
 
 @router.message(F.text == "🔮 Ответ на вопрос")
 async def ask_question_start(message: Message, state: FSMContext):
     data = await state.get_data()
-    seen_examples = data.get("seen_question_examples", False)
+    seen = data.get("seen_examples", False)
 
     await state.set_state(AskQuestion.waiting_for_question)
 
-    if not seen_examples:
+    if not seen:
         await message.answer(
-            "🔮 Напиши свой вопрос одним сообщением.\n\n"
+            "🔮 Напиши вопрос одним сообщением.\n\n"
             "Например:\n"
-            "• Какой шаг будет самым верным на этой неделе?\n"
-            "• На что мне стоит обратить внимание прямо сейчас?\n"
+            "• Какой шаг будет верным на этой неделе?\n"
             "• Что мне важно знать о наших отношениях?\n"
-            "• Как мне сейчас найти ясность?\n"
-            "• Как мне лучше действовать в этой ситуации?\n\n"
-            "Я достану одну карту Таро и дам бережное описание 🤍",
+            "• Как мне лучше действовать сейчас?\n\n"
+            "Я дам ответ через одну карту 🤍",
             reply_markup=MAIN_MENU,
         )
-        await state.update_data(seen_question_examples=True)
+        await state.update_data(seen_examples=True)
     else:
-        await message.answer(
-            "🔮 Напиши свой вопрос одним сообщением 🤍",
-            reply_markup=MAIN_MENU,
-        )
+        await message.answer("🔮 Напиши свой вопрос 🤍", reply_markup=MAIN_MENU)
 
 
 @router.message(AskQuestion.waiting_for_question)
 async def answer_question(message: Message, state: FSMContext):
-    # ВАЖНО: никаких проверок длины — любое сообщение считаем вопросом
-    now_ts = datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
-    should_offer = record_question_and_should_offer(message.from_user.id, now_ts)
+    now_ts = datetime.datetime.now(datetime.timezone.utc).timestamp()
+    offer = record_question_and_should_offer(message.from_user.id, now_ts)
 
     await state.clear()
 
     if not TAROT_CARDS:
-        await message.answer(
-            "Похоже, колода Таро пока не подключена 🥺\n"
-            "Админ ещё не загрузил cards.json или карты.",
-            reply_markup=MAIN_MENU,
-        )
+        await message.answer("Колода Таро не подключена 🥺", reply_markup=MAIN_MENU)
         return
 
-    tarot_card = random.choice(TAROT_CARDS)
-    await send_one_card(message, tarot_card, prefix="🔮 ")
+    await send_one_card(message, random.choice(TAROT_CARDS), "🔮 ")
 
-    if should_offer:
+    if offer:
         await message.answer(
-            "Хочешь разобрать свои вопросы глубже через личную консультацию? 💬\n\n"
-            "Мы можем посмотреть ситуацию внимательно и бережно.",
+            "Хочешь разобрать ситуацию глубже через личную консультацию? 💬",
             reply_markup=CONSULT_KB,
         )
 
 
-# -----------------------------
-# Кнопки консультации
-# -----------------------------
-# -----------------------------
-# Кнопки консультации
-# -----------------------------
 @router.callback_query(F.data == "deep_yes")
 async def deep_yes(callback: CallbackQuery):
     await callback.message.answer(
-        "Хорошо 🤍\n\n"
-        "Напиши мне в личные сообщения, и мы спокойно разберём твой вопрос глубже.",
+        "Хорошо 🤍 Напиши мне в личные сообщения.",
         reply_markup=MAIN_MENU,
     )
     await callback.answer()
@@ -321,12 +268,49 @@ async def deep_yes(callback: CallbackQuery):
 async def deep_no(callback: CallbackQuery):
     await callback.message.answer("Хорошо 🌿")
     await callback.answer()
-
     await asyncio.sleep(PAUSE_BEFORE_MENU_SECONDS)
     await callback.message.answer("Выбери следующий шаг:", reply_markup=MAIN_MENU)
 
+
 # -----------------------------
-# Запуск
+# Health server для Railway
+# -----------------------------
+async def _handle_http(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    try:
+        await reader.readline()
+        while True:
+            line = await reader.readline()
+            if not line or line in (b"\r\n", b"\n"):
+                break
+        body = b"OK"
+        writer.write(
+            b"HTTP/1.1 200 OK\r\n"
+            b"Content-Type: text/plain\r\n"
+            + f"Content-Length: {len(body)}\r\n".encode()
+            + b"\r\n"
+            + body
+        )
+        await writer.drain()
+    finally:
+        writer.close()
+        try:
+            await writer.wait_closed()
+        except Exception:
+            pass
+
+
+async def start_health_server() -> Optional[asyncio.AbstractServer]:
+    port = os.getenv("PORT")
+    if not port:
+        logger.info("PORT не задан — health-сервер не запущен")
+        return None
+    server = await asyncio.start_server(_handle_http, "0.0.0.0", int(port))
+    logger.info("Health server listening on %s", port)
+    return server
+
+
+# -----------------------------
+# main
 # -----------------------------
 async def main():
     global TAROT_CARDS, MIND_CARDS
@@ -334,31 +318,31 @@ async def main():
     try:
         TAROT_CARDS = load_cards(CARDS_JSON)
         logger.info("Loaded TAROT_CARDS: %d", len(TAROT_CARDS))
-    except Exception as e:
+    except Exception:
         TAROT_CARDS = []
-        logger.exception("Failed to load %s: %s", CARDS_JSON, e)
+        logger.exception("Failed to load TAROT_CARDS")
 
     try:
         if os.path.exists(MIND_CARDS_JSON):
             MIND_CARDS = load_cards(MIND_CARDS_JSON)
             logger.info("Loaded MIND_CARDS: %d", len(MIND_CARDS))
-        else:
-            MIND_CARDS = []
-            logger.info("%s not found, MIND_CARDS is empty (ok).", MIND_CARDS_JSON)
-    except Exception as e:
+    except Exception:
         MIND_CARDS = []
-        logger.exception("Failed to load %s: %s", MIND_CARDS_JSON, e)
+        logger.exception("Failed to load MIND_CARDS")
 
-    bot = Bot(
-        token=TOKEN,
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
-    )
-
+    bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher(storage=MemoryStorage())
     dp.include_router(router)
 
-    logger.info("Bot started. Polling…")
-    await dp.start_polling(bot)
+    health = await start_health_server()
+
+    try:
+        logger.info("Bot started. Polling…")
+        await dp.start_polling(bot)
+    finally:
+        if health:
+            health.close()
+            await health.wait_closed()
 
 
 if __name__ == "__main__":
