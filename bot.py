@@ -1,272 +1,329 @@
-import asyncio
-import json
 import os
+import json
 import random
+import hashlib
 import datetime
-import time
+import asyncio
 from collections import defaultdict, deque
+from typing import Any, Dict, List, Optional
 
-from aiogram import Bot, Dispatcher, types, F
-from aiogram.enums import ParseMode
-from aiogram.filters import Command
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
+from aiogram import Bot, Dispatcher, Router, F
 from aiogram.types import (
-    ReplyKeyboardMarkup, KeyboardButton,
-    InlineKeyboardMarkup, InlineKeyboardButton,
+    Message,
+    CallbackQuery,
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
 )
+from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
+from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types.input_file import FSInputFile
 
 
-# =========================
+# -----------------------------
 # Настройки
-# =========================
-
-TOKEN = os.getenv("BOT_TOKEN")
+# -----------------------------
+TOKEN = os.getenv("BOT_TOKEN") or os.getenv("TOKEN")
 if not TOKEN:
-    raise RuntimeError("BOT_TOKEN env var is not set")
+    raise RuntimeError("Не найден BOT_TOKEN (или TOKEN) в переменных окружения Railway.")
 
-CONSULT_URL = "https://t.me/olga_febr"
+CARDS_JSON = "cards.json"            # Таро
+MIND_CARDS_JSON = "mind_cards.json"  # Карты отклика / образы
+IMAGES_DIR = "cards"                 # папка с картинками
 
-OFFER_AFTER_N_ANSWERS = 5
-OFFER_WINDOW_SECONDS = 30 * 60          # 30 минут
-OFFER_COOLDOWN_SECONDS = 6 * 60 * 60    # 6 часов
-
-
-# =========================
-# Инициализация бота
-# =========================
-
-bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML)
-dp = Dispatcher()
+QUESTIONS_WINDOW_SECONDS = 30 * 60   # 30 минут
+QUESTIONS_LIMIT = 5                 # после 5 вопросов показать предложение
+COOLDOWN_SECONDS = 6 * 60 * 60      # 6 часов охлаждение
+PAUSE_BEFORE_MENU_SECONDS = 2       # пауза перед возвратом к меню
 
 
-# =========================
-# FSM
-# =========================
+# -----------------------------
+# FSM состояния
+# -----------------------------
+class AskQuestion(StatesGroup):
+    waiting_for_question = State()
 
-class Flow(StatesGroup):
-    waiting_tarot_question = State()
 
-
-# =========================
+# -----------------------------
 # Загрузка колод
-# =========================
+# -----------------------------
+def load_cards(path: str) -> List[Dict[str, Any]]:
+    """
+    Ожидаем формат:
+    {
+      "cards": [
+        {
+          "name": "...",
+          "image": "file.jpg",
+          "description": "...",
+          "descriptions": ["вариант1", "вариант2"]   # опционально
+        }
+      ]
+    }
+    """
+    if not os.path.exists(path):
+        # Лучше упасть сразу, чтобы было понятно, что не залит файл
+        raise FileNotFoundError(f"Не найден файл: {path} (проверь, что он в корне репозитория рядом с bot.py)")
 
-def load_cards(path: str) -> list[dict]:
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
+
     if "cards" not in data or not isinstance(data["cards"], list):
-        raise ValueError(f"{path} must contain {{'cards': [...]}}")
+        raise ValueError(f"{path} должен содержать ключ 'cards' со списком.")
+
     return data["cards"]
 
 
-TAROT_CARDS = load_cards("cards.json")
-MIND_CARDS = load_cards("mind_cards.json")
+def pick_description(card: Dict[str, Any]) -> str:
+    """
+    Если есть descriptions (список) — выбираем рандомно.
+    Иначе берём description.
+    """
+    variants = card.get("descriptions")
+    if isinstance(variants, list) and variants:
+        return random.choice(variants)
+    return str(card.get("description", "")).strip()
 
 
-# =========================
-# Постоянное меню
-# =========================
-
-def persistent_keyboard() -> ReplyKeyboardMarkup:
+# -----------------------------
+# Клавиатуры
+# -----------------------------
+def main_menu_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="🌿 Карта дня")],
+            [KeyboardButton(text="🌞 Карта дня")],
             [KeyboardButton(text="🔮 Ответ на вопрос")],
             [KeyboardButton(text="🫧 Карта отклика")],
         ],
         resize_keyboard=True,
-        is_persistent=True,
-        input_field_placeholder="Выбери режим…",
+        one_time_keyboard=False,
+        input_field_placeholder="Выбери действие…",
     )
 
 
-# =========================
-# Карта дня (стабильная)
-# =========================
+def consult_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(text="Да", callback_data="deep_yes"),
+            InlineKeyboardButton(text="Не сейчас", callback_data="deep_no"),
+        ]
+    ])
 
-def stable_day_card_for_user(user_id: int) -> dict:
+
+# -----------------------------
+# Стабильная карта дня
+# -----------------------------
+def stable_choice_for_user_today(user_id: int, cards: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Стабильный выбор карты на день для конкретного пользователя.
+    """
     today = datetime.date.today().isoformat()
-    seed = f"{user_id}-{today}"
-    rnd = random.Random(seed)
-    return rnd.choice(TAROT_CARDS + MIND_CARDS)
+    seed = f"{user_id}:{today}"
+    h = hashlib.sha256(seed.encode("utf-8")).hexdigest()
+    idx = int(h, 16) % len(cards)
+    return cards[idx]
 
 
-# =========================
-# Тексты: description / descriptions
-# =========================
+# -----------------------------
+# Отправка карты
+# -----------------------------
+async def send_one_card(message: Message, card: Dict[str, Any], prefix: str = "") -> None:
+    """
+    Отправляет одну карту: фото + подпись.
+    Ожидаем card["image"] как имя файла внутри папки cards/
+    """
+    name = str(card.get("name", "")).strip()
+    image = str(card.get("image", "")).strip()
+    text = pick_description(card)
 
-def pick_description(card: dict) -> str:
-    descs = card.get("descriptions")
-    if isinstance(descs, list) and descs:
-        return random.choice(descs)
-    return card.get("description", "")
+    caption_parts = []
+    if name:
+        caption_parts.append(f"{prefix}<b>{name}</b>")
+    if text:
+        caption_parts.append(text)
+
+    caption = "\n\n".join([p for p in caption_parts if p]).strip()
+    photo_path = os.path.join(IMAGES_DIR, image)
+
+    if image and os.path.exists(photo_path):
+        photo = FSInputFile(photo_path)
+        await message.answer_photo(photo=photo, caption=caption, reply_markup=main_menu_keyboard())
+    else:
+        # если картинки нет — хотя бы текст
+        await message.answer(
+            (caption or "Карта выбрана, но файл изображения не найден 😅"),
+            reply_markup=main_menu_keyboard(),
+        )
 
 
-def image_path(card: dict) -> str:
-    return f"cards/{card.get('image', '')}"
+# -----------------------------
+# Трекинг вопросов для предложения консультации
+# -----------------------------
+# Храним последние timestamps вопросов (только для "Ответ на вопрос")
+user_question_times: Dict[int, deque] = defaultdict(lambda: deque(maxlen=50))
+# Храним время, когда последний раз показали оффер (для cooldown)
+user_offer_until: Dict[int, float] = defaultdict(lambda: 0.0)
 
 
-# =========================
-# Предложение "глубже" — только после Ответа на вопрос
-# =========================
-
-USER_ANSWERS = defaultdict(lambda: deque())    # user_id -> deque[timestamps]
-USER_LAST_OFFER = defaultdict(lambda: 0.0)    # user_id -> last_offer_ts
-
-def should_prompt_deeper(user_id: int) -> bool:
-    now = time.time()
-
-    q = USER_ANSWERS[user_id]
-    q.append(now)
-
-    cutoff = now - OFFER_WINDOW_SECONDS
-    while q and q[0] < cutoff:
-        q.popleft()
-
-    # кулдаун на предложение
-    if now - USER_LAST_OFFER[user_id] < OFFER_COOLDOWN_SECONDS:
+def record_question_and_should_offer(user_id: int, now_ts: float) -> bool:
+    """
+    Записываем вопрос и проверяем: надо ли показать предложение консультации.
+    - показываем после 5 вопросов за 30 минут
+    - только если не на cooldown
+    """
+    # cooldown check
+    if now_ts < user_offer_until[user_id]:
+        # даже если много вопросов — молчим до конца охлаждения
+        user_question_times[user_id].append(now_ts)
         return False
 
-    if len(q) >= OFFER_AFTER_N_ANSWERS:
-        USER_LAST_OFFER[user_id] = now
+    dq = user_question_times[user_id]
+    dq.append(now_ts)
+
+    # выкинуть всё старше окна
+    cutoff = now_ts - QUESTIONS_WINDOW_SECONDS
+    while dq and dq[0] < cutoff:
+        dq.popleft()
+
+    if len(dq) >= QUESTIONS_LIMIT:
+        # ставим cooldown и сбрасываем очередь (чтобы снова не сработало мгновенно)
+        user_offer_until[user_id] = now_ts + COOLDOWN_SECONDS
+        dq.clear()
         return True
 
     return False
 
 
-def prompt_deeper_keyboard() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="Да 🌙", callback_data="deeper_yes"),
-                InlineKeyboardButton(text="Не сейчас", callback_data="deeper_no"),
-            ]
-        ]
+# -----------------------------
+# Роутер / Диспетчер
+# -----------------------------
+router = Router()
+
+
+@router.message(CommandStart())
+async def cmd_start(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(
+        "Привет 🤍\n\n"
+        "Я могу дать тебе одну карту — бережно и поддерживающе.\n"
+        "Выбери следующий шаг:",
+        reply_markup=main_menu_keyboard(),
     )
 
 
-def consult_button_keyboard() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="🧩 Разобрать вопрос глубже", url=CONSULT_URL)]
-        ]
-    )
+@router.message(F.text == "🌞 Карта дня")
+async def day_card(message: Message, state: FSMContext):
+    await state.clear()
 
-
-# =========================
-# Отправка карты (всегда 1 карта)
-# =========================
-
-async def send_one_card(message: types.Message, card: dict, prefix: str = ""):
-    title = card.get("title", "Карта")
-    desc = pick_description(card).strip()
-    caption = f"{prefix}<b>{title}</b>\n\n{desc}".strip()
-
-    img = card.get("image", "")
-    path = image_path(card)
-
-    if not img or not os.path.exists(path):
-        await message.answer(
-            caption + (f"\n\n(⚠️ Нет файла изображения: {img})" if img else "\n\n(⚠️ Не указано поле image)"),
-            reply_markup=persistent_keyboard(),
-        )
+    # объединённая колода: tarot + mind, но карта одна
+    all_cards = TAROT_CARDS + MIND_CARDS
+    if not all_cards:
+        await message.answer("Пока нет ни одной карты в колодах 🥺", reply_markup=main_menu_keyboard())
         return
 
-    photo = FSInputFile(path)
-    await message.answer_photo(photo=photo, caption=caption)
-    # чтобы меню не терялось на iOS/клиентах — продублируем
-    await message.answer("Выбери следующий шаг:", reply_markup=persistent_keyboard())
+    card = stable_choice_for_user_today(message.from_user.id, all_cards)
+    await send_one_card(message, card, prefix="🌞 ")
 
 
-# =========================
-# Хэндлеры
-# =========================
-
-@dp.message(Command("start"))
-async def start(message: types.Message, state: FSMContext):
+@router.message(F.text == "🫧 Карта отклика")
+async def mind_card(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer("Я рядом 🌿\n\nВыбери режим:", reply_markup=persistent_keyboard())
 
+    if not MIND_CARDS:
+        await message.answer("🫧 Колода отклика пока наполняется. Загляни чуть позже 🤍", reply_markup=main_menu_keyboard())
+        return
 
-@dp.message(F.text == "🌿 Карта дня")
-async def day_card(message: types.Message, state: FSMContext):
-    await state.clear()
-    card = stable_day_card_for_user(message.from_user.id)
-
-    await message.answer("Пауза… вдох…")
-    await asyncio.sleep(1)
-
-    await send_one_card(message, card, prefix="🌿 ")
-
-
-@dp.message(F.text == "🫧 Карта отклика")
-async def mind_card(message: types.Message, state: FSMContext):
-    await state.clear()
     card = random.choice(MIND_CARDS)
-
-    await message.answer("Пусть проявится образ…")
-    await asyncio.sleep(1)
-
     await send_one_card(message, card, prefix="🫧 ")
 
 
-@dp.message(F.text == "🔮 Ответ на вопрос")
-async def ask_question(message: types.Message, state: FSMContext):
-    await state.set_state(Flow.waiting_tarot_question)
-    await message.answer("Напиши вопрос одним сообщением — и я дам одну карту.")
+@router.message(F.text == "🔮 Ответ на вопрос")
+async def ask_question_start(message: Message, state: FSMContext):
+    await state.set_state(AskQuestion.waiting_for_question)
+    await message.answer(
+        "🔮 Напиши свой вопрос одним сообщением.\n\n"
+        "Я достану одну карту Таро и дам бережное описание.",
+        reply_markup=main_menu_keyboard(),
+    )
 
 
-@dp.message(Flow.waiting_tarot_question)
-async def tarot_answer(message: types.Message, state: FSMContext):
+@router.message(AskQuestion.waiting_for_question)
+async def answer_question(message: Message, state: FSMContext):
+    # фиксируем факт вопроса для оффера (именно тут)
+    now_ts = datetime.datetime.now().timestamp()
+    should_offer = record_question_and_should_offer(message.from_user.id, now_ts)
+
     await state.clear()
 
-    card = random.choice(TAROT_CARDS)
+    if not TAROT_CARDS:
+        await message.answer("Похоже, колода Таро пока пустая 🥺", reply_markup=main_menu_keyboard())
+        return
 
-    await message.answer("Настраиваюсь на вопрос…")
-    await asyncio.sleep(1)
+    # карта Таро
+    tarot_card = random.choice(TAROT_CARDS)
+    await send_one_card(message, tarot_card, prefix="🔮 ")
 
-    await send_one_card(message, card, prefix="🔮 ")
+    # (по твоей логике) здесь НЕ добавляем карту отклика — только Tarot
 
-    # мягкое предложение (только после ответа на вопрос)
-    if should_prompt_deeper(message.from_user.id):
+    # показать оффер при условии
+    if should_offer:
         await message.answer(
-            "Кажется, ты сейчас в глубоком процессе.\n"
-            "Хочешь разобрать вопрос глубже и бережнее?",
-            reply_markup=prompt_deeper_keyboard(),
+            "Хочешь разобрать свои вопросы глубже через личную консультацию? 💬\n\n"
+            "Мы можем посмотреть ситуацию внимательно и бережно.",
+            reply_markup=consult_keyboard(),
         )
 
 
-@dp.callback_query(F.data == "deeper_yes")
-async def deeper_yes(callback: types.CallbackQuery):
+# -----------------------------
+# Кнопки консультации
+# -----------------------------
+@router.callback_query(F.data == "deep_yes")
+async def deep_yes(callback: CallbackQuery):
+    # Тут пока без ссылки/ника — ты позже решишь, где лучше: bio или кнопка со ссылкой.
+    await callback.message.answer(
+        "Хорошо 🤍\n\n"
+        "Напиши мне в личные сообщения, и мы спокойно разберём твой вопрос глубже.",
+        reply_markup=main_menu_keyboard(),
+    )
     await callback.answer()
-    await callback.message.answer(
-        "Хорошо 🌙 Если захочется — нажми кнопку ниже:",
-        reply_markup=consult_button_keyboard(),
-    )
 
 
-@dp.callback_query(F.data == "deeper_no")
-async def deeper_no(callback: types.CallbackQuery):
-    await callback.answer("Хорошо 🤍")
-    await callback.message.answer(
-        "Ок. Я рядом и без спешки.",
-        reply_markup=persistent_keyboard(),
-    )
+@router.callback_query(F.data == "deep_no")
+async def deep_no(callback: CallbackQuery):
+    await callback.message.answer("Хорошо 🌿")
+    await callback.answer()
+
+    # Пауза и возврат к меню
+    await asyncio.sleep(PAUSE_BEFORE_MENU_SECONDS)
+    await callback.message.answer("Выбери следующий шаг:", reply_markup=main_menu_keyboard())
 
 
-@dp.message()
-async def fallback(message: types.Message):
-    await message.answer("Выбери режим кнопками ниже 👇", reply_markup=persistent_keyboard())
-
-
-# =========================
+# -----------------------------
 # Запуск
-# =========================
-
+# -----------------------------
 async def main():
+    global TAROT_CARDS, MIND_CARDS
+
+    # грузим колоды
+    TAROT_CARDS = load_cards(CARDS_JSON)
+    MIND_CARDS = load_cards(MIND_CARDS_JSON) if os.path.exists(MIND_CARDS_JSON) else []
+
+    bot = Bot(
+        token=TOKEN,
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+    )
+
+    dp = Dispatcher(storage=MemoryStorage())
+    dp.include_router(router)
+
     await dp.start_polling(bot)
 
+
 if __name__ == "__main__":
+    import asyncio
     asyncio.run(main())
