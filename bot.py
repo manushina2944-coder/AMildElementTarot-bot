@@ -98,7 +98,7 @@ def _build_main_menu_keyboard() -> ReplyKeyboardMarkup:
         keyboard=[
             [KeyboardButton(text="🌿 Карта дня")],
             [KeyboardButton(text="🔮 Ответ на вопрос")],
-            [KeyboardButton(text="🫧 Карта отклика")],
+            [KeyboardButton(text="🫧 Карта отклика - метафорический образ")],
         ],
         resize_keyboard=True,
     )
@@ -203,7 +203,7 @@ async def day_card(message: Message, state: FSMContext):
     await message.answer("Хочешь ещё поговорить с Картами?", reply_markup=MAIN_MENU)
 
 
-@router.message(F.text == "🫧 Карта отклика")
+@router.message(F.text == "🫧 Карта отклика - метафорический образ")
 async def mind_card(message: Message, state: FSMContext):
     await state.set_state(None)
 
