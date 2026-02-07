@@ -304,8 +304,11 @@ async def answer_question(message: Message, state: FSMContext):
 # -----------------------------
 # Кнопки консультации
 # -----------------------------
+# -----------------------------
+# Кнопки консультации
+# -----------------------------
 @router.callback_query(F.data == "deep_yes")
-async def deep_yes(callback: Callback_query):  # <-- FIX below: wrong type name
+async def deep_yes(callback: CallbackQuery):
     await callback.message.answer(
         "Хорошо 🤍\n\n"
         "Напиши мне в личные сообщения, и мы спокойно разберём твой вопрос глубже.",
@@ -321,7 +324,6 @@ async def deep_no(callback: CallbackQuery):
 
     await asyncio.sleep(PAUSE_BEFORE_MENU_SECONDS)
     await callback.message.answer("Выбери следующий шаг:", reply_markup=MAIN_MENU)
-
 
 # -----------------------------
 # Запуск
