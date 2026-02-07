@@ -108,7 +108,7 @@ def _build_consult_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text="Да", callback_data="deep_yes"),
+                InlineKeyboardButton(text="Да 🌙", callback_data="deep_yes"),
                 InlineKeyboardButton(text="Не сейчас", callback_data="deep_no"),
             ]
         ]
@@ -187,7 +187,7 @@ router = Router()
 async def cmd_start(message: Message, state: FSMContext):
     # Важно: НЕ state.clear(), чтобы не стирать data в FSM
     await state.set_state(None)
-    await message.answer("Привет 🤍\n\nВыбери следующий шаг:", reply_markup=MAIN_MENU)
+    await message.answer("Привет 🤍\n\nРад тебя видеть:", reply_markup=MAIN_MENU)
 
 
 @router.message(F.text == "🌿 Карта дня")
@@ -263,7 +263,7 @@ async def answer_question(message: Message, state: FSMContext):
 @router.callback_query(F.data == "deep_yes")
 async def deep_yes(callback: CallbackQuery):
     await callback.message.answer(
-        "Хорошо 🤍 Напиши мне в личные сообщения.",
+        "Хорошо 🤍 Напиши мне в личные сообщения @olga_febr",
         reply_markup=MAIN_MENU,
     )
     await callback.answer()
