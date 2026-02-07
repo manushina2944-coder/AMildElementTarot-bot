@@ -187,7 +187,7 @@ router = Router()
 async def cmd_start(message: Message, state: FSMContext):
     # Важно: НЕ state.clear(), чтобы не стирать data в FSM
     await state.set_state(None)
-    await message.answer("Привет 🤍\n\nРад тебя видеть. Что ты хочешь спросить у Карт Мягкой Стихии?:", reply_markup=MAIN_MENU)
+    await message.answer("Привет 🤍\n\nРад тебя видеть.\n" "Что ты хочешь спросить у Карт Мягкой Стихии?", reply_markup=MAIN_MENU)
 
 
 @router.message(F.text == "🌿 Карта дня")
@@ -200,7 +200,7 @@ async def day_card(message: Message, state: FSMContext):
         return
 
     await send_one_card(message, stable_choice_for_user_today(message.from_user.id, cards), "🌿 ")
-    await message.answer("Хочешь ещё поговорить с Картами?:", reply_markup=MAIN_MENU)
+    await message.answer("Хочешь ещё поговорить с Картами?", reply_markup=MAIN_MENU)
 
 
 @router.message(F.text == "🫧 Карта отклика")
