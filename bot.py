@@ -50,7 +50,7 @@ QUESTIONS_LIMIT = 5                  # после 5 вопросов показ�
 COOLDOWN_SECONDS = 6 * 60 * 60       # 6 часов охлаждение
 PAUSE_BEFORE_MENU_SECONDS = 2        # пауза перед возвратом к меню
 
-# Часовой пояс для "карты дня" (как просила — стабильно под NL/Amsterdam)
+# Часовой пояс для "карты дня"
 USER_TZ = ZoneInfo("Europe/Amsterdam")
 
 
@@ -100,10 +100,6 @@ def load_cards(path: str) -> List[Dict[str, Any]]:
 
 
 def pick_description(card: Dict[str, Any]) -> str:
-    """
-    Если есть descriptions (список) — выбираем рандомно.
-    Иначе берём description.
-    """
     variants = card.get("descriptions")
     if isinstance(variants, list) and variants:
         return random.choice(variants)
@@ -111,12 +107,12 @@ def pick_description(card: Dict[str, Any]) -> str:
 
 
 # -----------------------------
-# Клавиатуры (кэшируем, чтобы не создавать заново каждый раз)
+# Клавиатуры (кэшируем)
 # -----------------------------
 def _build_main_menu_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="🌞 Карта дня")],
+            [KeyboardButton(text="🌿 Карта дня")],
             [KeyboardButton(text="🔮 Ответ на вопрос")],
             [KeyboardButton(text="🫧 Карта отклика")],
         ],
@@ -145,10 +141,6 @@ CONSULT_KB = _build_consult_keyboard()
 # Стабильная карта дня
 # -----------------------------
 def stable_choice_for_user_today(user_id: int, cards: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Стабильный выбор карты на день для конкретного пользователя.
-    ВАЖНО: привязан к USER_TZ (Europe/Amsterdam), а не к таймзоне сервера.
-    """
     today = datetime.datetime.now(USER_TZ).date().isoformat()
     seed = f"{user_id}:{today}"
     h = hashlib.sha256(seed.encode("utf-8")).hexdigest()
@@ -160,10 +152,6 @@ def stable_choice_for_user_today(user_id: int, cards: List[Dict[str, Any]]) -> D
 # Отправка карты
 # -----------------------------
 async def send_one_card(message: Message, card: Dict[str, Any], prefix: str = "") -> None:
-    """
-    Отправляет одну карту: фото + подпись.
-    Ожидаем card["image"] как имя файла внутри папки cards/
-    """
     name = str(card.get("name", "")).strip()
     image = str(card.get("image", "")).strip()
     text = pick_description(card)
@@ -195,12 +183,6 @@ user_offer_until: Dict[int, float] = defaultdict(lambda: 0.0)
 
 
 def record_question_and_should_offer(user_id: int, now_ts: float) -> bool:
-    """
-    Записываем вопрос и проверяем: надо ли показать предложение консультации.
-    - показываем после 5 вопросов за 30 минут
-    - только если не на cooldown
-    """
-    # cooldown check
     if now_ts < user_offer_until[user_id]:
         user_question_times[user_id].append(now_ts)
         return False
@@ -221,7 +203,7 @@ def record_question_and_should_offer(user_id: int, now_ts: float) -> bool:
 
 
 # -----------------------------
-# Роутер / Диспетчер
+# Роутер
 # -----------------------------
 router = Router()
 
@@ -237,7 +219,7 @@ async def cmd_start(message: Message, state: FSMContext):
     )
 
 
-@router.message(F.text == "🌞 Карта дня")
+@router.message(F.text == "🌿 Карта дня")
 async def day_card(message: Message, state: FSMContext):
     await state.clear()
 
@@ -247,7 +229,7 @@ async def day_card(message: Message, state: FSMContext):
         return
 
     card = stable_choice_for_user_today(message.from_user.id, all_cards)
-    await send_one_card(message, card, prefix="🌞 ")
+    await send_one_card(message, card, prefix="🌿 ")
 
 
 @router.message(F.text == "🫧 Карта отклика")
@@ -267,23 +249,34 @@ async def mind_card(message: Message, state: FSMContext):
 
 @router.message(F.text == "🔮 Ответ на вопрос")
 async def ask_question_start(message: Message, state: FSMContext):
+    data = await state.get_data()
+    seen_examples = data.get("seen_question_examples", False)
+
     await state.set_state(AskQuestion.waiting_for_question)
-    await message.answer(
-        "🔮 Напиши свой вопрос одним сообщением.\n\n"
-        "Я достану одну карту Таро и дам бережное описание.",
-        reply_markup=MAIN_MENU,
-    )
+
+    if not seen_examples:
+        await message.answer(
+            "🔮 Напиши свой вопрос одним сообщением.\n\n"
+            "Например:\n"
+            "• Какой шаг будет самым верным на этой неделе?\n"
+            "• На что мне стоит обратить внимание прямо сейчас?\n"
+            "• Что мне важно знать о наших отношениях?\n"
+            "• Как мне сейчас найти ясность?\n"
+            "• Как мне лучше действовать в этой ситуации?\n\n"
+            "Я достану одну карту Таро и дам бережное описание 🤍",
+            reply_markup=MAIN_MENU,
+        )
+        await state.update_data(seen_question_examples=True)
+    else:
+        await message.answer(
+            "🔮 Напиши свой вопрос одним сообщением 🤍",
+            reply_markup=MAIN_MENU,
+        )
 
 
 @router.message(AskQuestion.waiting_for_question)
 async def answer_question(message: Message, state: FSMContext):
-    # лёгкая валидация: чтобы случайные/пустые сообщения не считались "вопросом"
-    q = (message.text or "").strip()
-    if len(q) < 3:
-        await message.answer("Напиши вопрос чуть подробнее 🤍", reply_markup=MAIN_MENU)
-        return
-
-    # фиксируем факт вопроса для оффера
+    # ВАЖНО: никаких проверок длины — любое сообщение считаем вопросом
     now_ts = datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
     should_offer = record_question_and_should_offer(message.from_user.id, now_ts)
 
@@ -312,7 +305,7 @@ async def answer_question(message: Message, state: FSMContext):
 # Кнопки консультации
 # -----------------------------
 @router.callback_query(F.data == "deep_yes")
-async def deep_yes(callback: CallbackQuery):
+async def deep_yes(callback: Callback_query):  # <-- FIX below: wrong type name
     await callback.message.answer(
         "Хорошо 🤍\n\n"
         "Напиши мне в личные сообщения, и мы спокойно разберём твой вопрос глубже.",
@@ -336,7 +329,6 @@ async def deep_no(callback: CallbackQuery):
 async def main():
     global TAROT_CARDS, MIND_CARDS
 
-    # грузим колоды (делаем “неубиваемо”: бот стартует даже без файлов, но пишет в лог)
     try:
         TAROT_CARDS = load_cards(CARDS_JSON)
         logger.info("Loaded TAROT_CARDS: %d", len(TAROT_CARDS))
