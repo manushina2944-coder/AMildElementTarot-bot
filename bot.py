@@ -107,8 +107,8 @@ async def cmd_start(message: Message, state: FSMContext):
     await state.set_state(None)
 
     await message.answer(
-        "🤍\n\n"
-        "Добро пожаловать в пространство Колоды Мягкой Стихии\n\n",
+        "Добро пожаловать в пространство Колоды Мягкой Стихии 🤍\n\n"
+        "Задай вопрос Полю. Колода ответит на твой вопрос одной из 78 карт",
         reply_markup=draw_card_keyboard(),
     )
 
