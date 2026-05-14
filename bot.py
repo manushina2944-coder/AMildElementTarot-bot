@@ -30,6 +30,7 @@ if not TOKEN:
 
 CARDS_JSON = "cards.json"
 IMAGES_DIR = "cards"
+VOICES_DIR = "voices"
 
 TAROT_CARDS: List[Dict[str, Any]] = []
 
@@ -51,6 +52,7 @@ def pick_description(card: Dict[str, Any]) -> str:
     variants = card.get("descriptions")
     if isinstance(variants, list) and variants:
         return random.choice(variants)
+
     return str(card.get("description", "")).strip()
 
 
@@ -71,6 +73,23 @@ def field_is_quiet_text() -> str:
     return "Сегодня Поле молчит чуть тише обычного 🤍"
 
 
+async def send_card_voice(message: Message, card: Dict[str, Any]) -> None:
+    voice = str(card.get("voice", "")).strip()
+
+    if not voice:
+        return
+
+    voice_path = os.path.join(VOICES_DIR, voice)
+
+    if not os.path.exists(voice_path):
+        logger.warning("Voice file not found: %s", voice_path)
+        return
+
+    await message.answer_voice(
+        voice=FSInputFile(voice_path),
+    )
+
+
 async def send_one_card(message: Message, card: Dict[str, Any]) -> None:
     name = str(card.get("name", "")).strip()
     image = str(card.get("image", "")).strip()
@@ -80,6 +99,7 @@ async def send_one_card(message: Message, card: Dict[str, Any]) -> None:
 
     if name:
         caption_parts.append(f"<b>{name}</b>")
+
     if text:
         caption_parts.append(text)
 
@@ -97,6 +117,8 @@ async def send_one_card(message: Message, card: Dict[str, Any]) -> None:
             caption or field_is_quiet_text(),
             reply_markup=draw_card_keyboard(),
         )
+
+    await send_card_voice(message, card)
 
 
 router = Router()
@@ -126,8 +148,8 @@ async def draw_card(callback: CallbackQuery, state: FSMContext):
         return
 
     card = random.choice(TAROT_CARDS)
-    await send_one_card(callback.message, card)
 
+    await send_one_card(callback.message, card)
     await callback.answer()
 
 
