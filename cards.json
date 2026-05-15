@@ -6,5 +6,11 @@
       "image": "AceOfPentacles.jpg",
       "description": "Туз Пентаклей"
     }
+    {
+      "id": "TwoOfPentacles",
+      "title": "Двойка Пентаклей",
+      "image": "TwoOfPentacles.jpg",
+      "description": "Двойка Пентаклей"
+    }
   ]
 }
