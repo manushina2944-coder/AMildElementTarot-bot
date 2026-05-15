@@ -2,19 +2,19 @@
   "cards": [
     {
       "id": "AceOfPentacles",
-      "title": "Туз Пентаклей",
+      "name": "Туз Пентаклей",
       "image": "AceOfPentacles.jpg",
       "description": "Туз Пентаклей"
     },
     {
       "id": "TwoOfPentacles",
-      "title": "Двойка Пентаклей",
+      "name": "Двойка Пентаклей",
       "image": "TwoOfPentacles.jpg",
       "description": "Двойка Пентаклей"
     },
     {
       "id": "ThreeOfPentacles",
-      "title": "Тройка Пентаклей",
+      "name": "Тройка Пентаклей",
       "image": "ThreeOfPentacles.jpg",
       "description": "Тройка Пентаклей"
     }
