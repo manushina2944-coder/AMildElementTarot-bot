@@ -11,6 +11,12 @@
       "title": "Двойка Пентаклей",
       "image": "TwoOfPentacles.jpg",
       "description": "Двойка Пентаклей"
+    },
+    {
+      "id": "ThreeOfPentacles",
+      "title": "Тройка Пентаклей",
+      "image": "ThreeOfPentacles.jpg",
+      "description": "Тройка Пентаклей"
     }
   ]
 }
