@@ -61,6 +61,11 @@
       "image": "SevenOfCups.PNG"
     },
     {
+      "id": "NineOfCups",
+      "name": "Девятка Чаш",
+      "image": "NineOfCups.jpg"
+    },
+    {
       "id": "PageOfCups",
       "name": "Паж Чаш",
       "image": "PageOfCups.PNG"
