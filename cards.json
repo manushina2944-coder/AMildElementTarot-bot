@@ -69,6 +69,31 @@
       "id": "PageOfCups",
       "name": "Паж Чаш",
       "image": "PageOfCups.PNG"
+    },
+    {
+      "id": "AceOfSwords",
+      "name": "Туз Мечей",
+      "image": "AceOfSwords.PNG"
+    },
+    {
+      "id": "TwoOfSwords",
+      "name": "Двойка Мечей",
+      "image": "TwoOfSwords.PNG"
+    },
+    {
+      "id": "ThreeOfSwords",
+      "name": "Тройка Мечей",
+      "image": "ThreeOfSwords.PNG"
+    },
+    {
+      "id": "FourOfSwords",
+      "name": "Четвёрка Мечей",
+      "image": "FourOfSwords.PNG"
+    },
+    {
+      "id": "SevenOfSwords",
+      "name": "Семёрка Мечей",
+      "image": "SevenOfSwords.PNG"
     }
   ]
 }
