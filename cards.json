@@ -3,20 +3,17 @@
     {
       "id": "AceOfPentacles",
       "name": "Туз Пентаклей",
-      "image": "AceOfPentacles.jpg",
-      "description": "Туз Пентаклей"
+      "image": "AceOfPentacles.jpg"
     },
     {
       "id": "TwoOfPentacles",
       "name": "Двойка Пентаклей",
-      "image": "TwoOfPentacles.jpg",
-      "description": "Двойка Пентаклей"
+      "image": "TwoOfPentacles.jpg"
     },
     {
       "id": "ThreeOfPentacles",
       "name": "Тройка Пентаклей",
-      "image": "ThreeOfPentacles.jpg",
-      "description": "Тройка Пентаклей"
+      "image": "ThreeOfPentacles.jpg"
     }
   ]
 }
