@@ -24,6 +24,11 @@
       "id": "SixOfPentacles",
       "name": "Шестёрка Пентаклей",
       "image": "SixOfPentacles.png"
+    },
+    {
+      "id": "SevenOfPentacles",
+      "name": "Семёрка Пентаклей",
+      "image": "SevenOfPentacles.png"
     }
   ]
 }
