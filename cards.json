@@ -34,6 +34,11 @@
       "id": "EightOfPentacles",
       "name": "Восьмёрка Пентаклей",
       "image": "EightOfPentacles.PNG"
+    },
+    {
+      "id": "AceOfCups",
+      "name": "Туз Чаш",
+      "image": "AceOfCups.PNG"
     }
   ]
 }
