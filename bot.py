@@ -48,14 +48,6 @@ def load_cards(path: str) -> List[Dict[str, Any]]:
     return data["cards"]
 
 
-def pick_description(card: Dict[str, Any]) -> str:
-    variants = card.get("descriptions")
-    if isinstance(variants, list) and variants:
-        return random.choice(variants)
-
-    return str(card.get("description", "")).strip()
-
-
 def draw_card_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
@@ -91,19 +83,11 @@ async def send_card_voice(message: Message, card: Dict[str, Any]) -> None:
 
 
 async def send_one_card(message: Message, card: Dict[str, Any]) -> None:
-    name = str(card.get("name", "")).strip()
+    name = str(card.get("name") or card.get("title") or "").strip()
     image = str(card.get("image", "")).strip()
-    text = pick_description(card)
 
-    caption_parts = []
+    caption = f"<b>{name}</b>" if name else ""
 
-    if name:
-        caption_parts.append(f"<b>{name}</b>")
-
-    if text:
-        caption_parts.append(text)
-
-    caption = "\n\n".join(caption_parts).strip()
     photo_path = os.path.join(IMAGES_DIR, image)
 
     if image and os.path.exists(photo_path):
@@ -166,6 +150,7 @@ async def _handle_http(reader: asyncio.StreamReader, writer: asyncio.StreamWrite
                 break
 
         body = b"OK"
+
         writer.write(
             b"HTTP/1.1 200 OK\r\n"
             b"Content-Type: text/plain\r\n"
@@ -173,10 +158,12 @@ async def _handle_http(reader: asyncio.StreamReader, writer: asyncio.StreamWrite
             + b"\r\n"
             + body
         )
+
         await writer.drain()
 
     finally:
         writer.close()
+
         try:
             await writer.wait_closed()
         except Exception:
