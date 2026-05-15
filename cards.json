@@ -94,6 +94,11 @@
       "id": "SevenOfSwords",
       "name": "Семёрка Мечей",
       "image": "SevenOfSwords.PNG"
+    },
+    {
+      "id": "AceOfWands",
+      "name": "Туз Жезлов",
+      "image": "AceOfWands.PNG"
     }
   ]
 }
