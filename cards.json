@@ -39,6 +39,31 @@
       "id": "AceOfCups",
       "name": "Туз Чаш",
       "image": "AceOfCups.PNG"
+    },
+    {
+      "id": "TwoOfCups",
+      "name": "Двойка Чаш",
+      "image": "TwoOfCups.PNG"
+    },
+    {
+      "id": "ThreeOfCups",
+      "name": "Тройка Чаш",
+      "image": "ThreeOfCups.PNG"
+    },
+    {
+      "id": "SixOfCups",
+      "name": "Шестёрка Чаш",
+      "image": "SixOfCups.PNG"
+    },
+    {
+      "id": "SevenOfCups",
+      "name": "Семёрка Чаш",
+      "image": "SevenOfCups.PNG"
+    },
+    {
+      "id": "PageOfCups",
+      "name": "Паж Чаш",
+      "image": "PageOfCups.PNG"
     }
   ]
 }
