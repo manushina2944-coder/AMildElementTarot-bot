@@ -14,6 +14,16 @@
       "id": "ThreeOfPentacles",
       "name": "Тройка Пентаклей",
       "image": "ThreeOfPentacles.jpg"
+    },
+    {
+      "id": "FiveOfPentacles",
+      "name": "Пятерка Пентаклей",
+      "image": "FiveOfPentacles.PNG"
+    },
+    {
+      "id": "SixOfPentacles",
+      "name": "Шестёрка Пентаклей",
+      "image": "SixOfPentacles.PNG"
     }
   ]
 }
