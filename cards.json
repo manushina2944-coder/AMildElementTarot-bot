@@ -114,6 +114,51 @@
       "id": "EightOfWands",
       "name": "Восьмёрка Жезлов",
       "image": "EightOfWands.PNG"
+    },
+    {
+      "id": "TheMagician",
+      "name": "Маг",
+      "image": "TheMagician.PNG"
+    },
+    {
+      "id": "TheHighPriestess",
+      "name": "Верховная Жрица",
+      "image": "TheHighPriestess.PNG"
+    },
+    {
+      "id": "TheEmperor",
+      "name": "Император",
+      "image": "TheEmperor.PNG"
+    },
+    {
+      "id": "TheHierophant",
+      "name": "Иерофант",
+      "image": "TheHierophant.PNG"
+    },
+    {
+      "id": "TheChariot",
+      "name": "Колесница",
+      "image": "TheChariot.PNG"
+    },
+    {
+      "id": "Justice",
+      "name": "Справедливость",
+      "image": "Justice.PNG"
+    },
+    {
+      "id": "TheWheelOfFortune",
+      "name": "Колесо Фортуны",
+      "image": "TheWheelOfFortune.PNG"
+    },
+    {
+      "id": "Temperance",
+      "name": "Умеренность",
+      "image": "Temperance.PNG"
+    },
+    {
+      "id": "TheDevil",
+      "name": "Дьявол",
+      "image": "TheDevil.png"
     }
   ]
 }
