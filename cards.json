@@ -99,6 +99,21 @@
       "id": "AceOfWands",
       "name": "Туз Жезлов",
       "image": "AceOfWands.PNG"
+    },
+    {
+      "id": "TwoOfWands",
+      "name": "Двойка Жезлов",
+      "image": "TwoOfWands.PNG"
+    },
+    {
+      "id": "FourOfWands",
+      "name": "Четвёрка Жезлов",
+      "image": "FourOfWands.PNG"
+    },
+    {
+      "id": "EightOfWands",
+      "name": "Восьмёрка Жезлов",
+      "image": "EightOfWands.PNG"
     }
   ]
 }
