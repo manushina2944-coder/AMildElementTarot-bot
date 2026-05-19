@@ -91,6 +91,11 @@
       "image": "FourOfSwords.PNG"
     },
     {
+      "id": "SixOfSwords",
+      "name": "Шестерка Мечей",
+      "image": "SixOfSwords.PNG"
+    },
+    {
       "id": "SevenOfSwords",
       "name": "Семёрка Мечей",
       "image": "SevenOfSwords.PNG"
