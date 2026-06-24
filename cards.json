@@ -1,174 +1,394 @@
 {
-"cards": [
-{
-  "name": "Шут",
-  "image": "TheFool.png",
-  "text": ""
-},
-{
-  "name": "Маг",
-  "image": "TheMagician.png",
-  "text": ""
-},
-{
-  "name": "Верховная Жрица",
-  "image": "TheHighPriestess.png",
-  "text": ""
-},
-{
-  "name": "Императрица",
-  "image": "TheEmpress.png",
-  "text": ""
-},
-{
-"name": "Император",
-"image": "TheEmperor.png",
-"text": ""
-},
-{
-"name": "Иерофант",
-"image": "TheHierophant.png",
-"text": ""
-},
-{
-"name": "Влюблённые",
-"image": "TheLovers.png",
-"text": ""
-},
-{
-"name": "Колесница",
-"image": "TheChariot.png",
-"text": ""
-},
-{
-"name": "Сила",
-"image": "Strength.png",
-"text": ""
-},
-{
-"name": "Отшельник",
-"image": "TheHermit.png",
-"text": ""
-},
-{
-"name": "Колесо Фортуны",
-"image": "WheelOfFortune.png",
-"text": ""
-},
-{
-"name": "Справедливость",
-"image": "Justice.png",
-"text": ""
-},
-{
-"name": "Повешенный",
-"image": "TheHangedMan.png",
-"text": ""
-},
-{
-"name": "Смерть",
-"image": "Death.png",
-"text": ""
-},
-{
-"name": "Умеренность",
-"image": "Temperance.png",
-"text": ""
-},
-{
-"name": "Дьявол",
-"image": "TheDevil.png",
-"text": ""
-},
-{
-"name": "Башня",
-"image": "TheTower.png",
-"text": ""
-},
-{
-"name": "Звезда",
-"image": "TheStar.png",
-"text": ""
-},
-{
-"name": "Луна",
-"image": "TheMoon.png",
-"text": ""
-},
-{
-"name": "Солнце",
-"image": "TheSun.png",
-"text": ""
-},
-{
-"name": "Суд",
-"image": "Judgement.png",
-"text": ""
-},
-{
-"name": "Мир",
-"image": "TheWorld.png",
-"text": ""
-},
-  {"name":"Туз Жезлов",
-  "image":"AceOfWands.png",
-    "text":""},
-{"name":"Двойка Жезлов",
-  "image":"TwoOfWands.png",
-  "text":""},
-{"name":"Тройка Жезлов","image":"ThreeOfWands.png","text":""},
-{"name":"Четвёрка Жезлов","image":"FourOfWands.png","text":""},
-{"name":"Пятёрка Жезлов","image":"FiveOfWands.png","text":""},
-{"name":"Шестёрка Жезлов","image":"SixOfWands.png","text":""},
-{"name":"Семёрка Жезлов","image":"SevenOfWands.png","text":""},
-{"name":"Восьмёрка Жезлов","image":"EightOfWands.png","text":""},
-{"name":"Девятка Жезлов","image":"NineOfWands.png","text":""},
-{"name":"Десятка Жезлов","image":"TenOfWands.png","text":""},
-{"name":"Паж Жезлов","image":"PageOfWands.png","text":""},
-{"name":"Рыцарь Жезлов","image":"KnightOfWands.png","text":""},
-{"name":"Королева Жезлов","image":"QueenOfWands.png","text":""},
-{"name":"Король Жезлов","image":"KingOfWands.png","text":""},
-{"name":"Туз Кубков","image":"AceOfCups.png","text":""},
-{"name":"Двойка Кубков","image":"TwoOfCups.png","text":""},
-{"name":"Тройка Кубков","image":"ThreeOfCups.png","text":""},
-{"name":"Четвёрка Кубков","image":"FourOfCups.png","text":""},
-{"name":"Пятёрка Кубков","image":"FiveOfCups.png","text":""},
-{"name":"Шестёрка Кубков","image":"SixOfCups.png","text":""},
-{"name":"Семёрка Кубков","image":"SevenOfCups.png","text":""},
-{"name":"Восьмёрка Кубков","image":"EightOfCups.png","text":""},
-{"name":"Девятка Кубков","image":"NineOfCups.png","text":""},
-{"name":"Десятка Кубков","image":"TenOfCups.png","text":""},
-{"name":"Паж Кубков","image":"PageOfCups.png","text":""},
-{"name":"Рыцарь Кубков","image":"KnightOfCups.png","text":""},
-{"name":"Королева Кубков","image":"QueenOfCups.png","text":""},
-{"name":"Король Кубков","image":"KingOfCups.png","text":""},
-{"name":"Туз Мечей","image":"AceOfSwords.png","text":""},
-{"name":"Двойка Мечей","image":"TwoOfSwords.png","text":""},
-{"name":"Тройка Мечей","image":"ThreeOfSwords.png","text":""},
-{"name":"Четвёрка Мечей","image":"FourOfSwords.png","text":""},
-{"name":"Пятёрка Мечей","image":"FiveOfSwords.png","text":""},
-{"name":"Шестёрка Мечей","image":"SixOfSwords.png","text":""},
-{"name":"Семёрка Мечей","image":"SevenOfSwords.png","text":""},
-{"name":"Восьмёрка Мечей","image":"EightOfSwords.png","text":""},
-{"name":"Девятка Мечей","image":"NineOfSwords.png","text":""},
-{"name":"Десятка Мечей","image":"TenOfSwords.png","text":""},
-{"name":"Паж Мечей","image":"PageOfSwords.png","text":""},
-{"name":"Рыцарь Мечей","image":"KnightOfSwords.png","text":""},
-{"name":"Королева Мечей","image":"QueenOfSwords.png","text":""},
-{"name":"Король Мечей","image":"KingOfSwords.png","text":""},
-{"name":"Туз Пентаклей","image":"AceOfPentacles.png","text":""},
-{"name":"Двойка Пентаклей","image":"TwoOfPentacles.png","text":""},
-{"name":"Тройка Пентаклей","image":"ThreeOfPentacles.png","text":""},
-{"name":"Четвёрка Пентаклей","image":"FourOfPentacles.png","text":""},
-{"name":"Пятёрка Пентаклей","image":"FiveOfPentacles.png","text":""},
-{"name":"Шестёрка Пентаклей","image":"SixOfPentacles.png","text":""},
-{"name":"Семёрка Пентаклей","image":"SevenOfPentacles.png","text":""},
-{"name":"Восьмёрка Пентаклей","image":"EightOfPentacles.png","text":""},
-{"name":"Девятка Пентаклей","image":"NineOfPentacles.png","text":""},
-{"name":"Десятка Пентаклей","image":"TenOfPentacles.png","text":""},
-{"name":"Паж Пентаклей","image":"PageOfPentacles.png","text":""},
-{"name":"Рыцарь Пентаклей","image":"KnightOfPentacles.png","text":""},
-{"name":"Королева Пентаклей","image":"QueenOfPentacles.png","text":""},
-{"name":"Король Пентаклей","image":"KingOfPentacles.png","text":""}
-]
-}
+  "cards": [
+    {
+      "name": "Шут",
+      "image": "TheFool.png",
+      "text": ""
+    },
+    {
+      "name": "Маг",
+      "image": "TheMagician.png",
+      "text": ""
+    },
+    {
+      "name": "Верховная Жрица",
+      "image": "TheHighPriestess.png",
+      "text": ""
+    },
+    {
+      "name": "Императрица",
+      "image": "TheEmpress.png",
+      "text": ""
+    },
+    {
+      "name": "Император",
+      "image": "TheEmperor.png",
+      "text": ""
+    },
+    {
+      "name": "Иерофант",
+      "image": "TheHierophant.png",
+      "text": ""
+    },
+    {
+      "name": "Влюблённые",
+      "image": "TheLovers.png",
+      "text": ""
+    },
+    {
+      "name": "Колесница",
+      "image": "TheChariot.png",
+      "text": ""
+    },
+    {
+      "name": "Сила",
+      "image": "Strength.png",
+      "text": ""
+    },
+    {
+      "name": "Отшельник",
+      "image": "TheHermit.png",
+      "text": ""
+    },
+    {
+      "name": "Колесо Фортуны",
+      "image": "WheelOfFortune.png",
+      "text": ""
+    },
+    {
+      "name": "Справедливость",
+      "image": "Justice.png",
+      "text": ""
+    },
+    {
+      "name": "Повешенный",
+      "image": "TheHangedMan.png",
+      "text": ""
+    },
+    {
+      "name": "Смерть",
+      "image": "Death.png",
+      "text": ""
+    },
+    {
+      "name": "Умеренность",
+      "image": "Temperance.png",
+      "text": ""
+    },
+    {
+      "name": "Дьявол",
+      "image": "TheDevil.png",
+      "text": ""
+    },
+    {
+      "name": "Башня",
+      "image": "TheTower.png",
+      "text": ""
+    },
+    {
+      "name": "Звезда",
+      "image": "TheStar.png",
+      "text": ""
+    },
+    {
+      "name": "Луна",
+      "image": "TheMoon.png",
+      "text": ""
+    },
+    {
+      "name": "Солнце",
+      "image": "TheSun.png",
+      "text": ""
+    },
+    {
+      "name": "Суд",
+      "image": "Judgement.png",
+      "text": ""
+    },
+    {
+      "name": "Мир",
+      "image": "TheWorld.png",
+      "text": ""
+    },
+    {
+      "name": "Туз Жезлов",
+      "image": "AceOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Двойка Жезлов",
+      "image": "TwoOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Тройка Жезлов",
+      "image": "ThreeOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Четвёрка Жезлов",
+      "image": "FourOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Пятёрка Жезлов",
+      "image": "FiveOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Шестёрка Жезлов",
+      "image": "SixOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Семёрка Жезлов",
+      "image": "SevenOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Восьмёрка Жезлов",
+      "image": "EightOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Девятка Жезлов",
+      "image": "NineOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Десятка Жезлов",
+      "image": "TenOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Паж Жезлов",
+      "image": "PageOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Рыцарь Жезлов",
+      "image": "KnightOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Королева Жезлов",
+      "image": "QueenOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Король Жезлов",
+      "image": "KingOfWands.png",
+      "text": ""
+    },
+    {
+      "name": "Туз Кубков",
+      "image": "AceOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Двойка Кубков",
+      "image": "TwoOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Тройка Кубков",
+      "image": "ThreeOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Четвёрка Кубков",
+      "image": "FourOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Пятёрка Кубков",
+      "image": "FiveOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Шестёрка Кубков",
+      "image": "SixOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Семёрка Кубков",
+      "image": "SevenOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Восьмёрка Кубков",
+      "image": "EightOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Девятка Кубков",
+      "image": "NineOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Десятка Кубков",
+      "image": "TenOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Паж Кубков",
+      "image": "PageOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Рыцарь Кубков",
+      "image": "KnightOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Королева Кубков",
+      "image": "QueenOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Король Кубков",
+      "image": "KingOfCups.png",
+      "text": ""
+    },
+    {
+      "name": "Туз Мечей",
+      "image": "AceOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Двойка Мечей",
+      "image": "TwoOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Тройка Мечей",
+      "image": "ThreeOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Четвёрка Мечей",
+      "image": "FourOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Пятёрка Мечей",
+      "image": "FiveOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Шестёрка Мечей",
+      "image": "SixOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Семёрка Мечей",
+      "image": "SevenOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Восьмёрка Мечей",
+      "image": "EightOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Девятка Мечей",
+      "image": "NineOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Десятка Мечей",
+      "image": "TenOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Паж Мечей",
+      "image": "PageOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Рыцарь Мечей",
+      "image": "KnightOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Королева Мечей",
+      "image": "QueenOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Король Мечей",
+      "image": "KingOfSwords.png",
+      "text": ""
+    },
+    {
+      "name": "Туз Пентаклей",
+      "image": "AceOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Двойка Пентаклей",
+      "image": "TwoOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Тройка Пентаклей",
+      "image": "ThreeOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Четвёрка Пентаклей",
+      "image": "FourOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Пятёрка Пентаклей",
+      "image": "FiveOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Шестёрка Пентаклей",
+      "image": "SixOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Семёрка Пентаклей",
+      "image": "SevenOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Восьмёрка Пентаклей",
+      "image": "EightOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Девятка Пентаклей",
+      "image": "NineOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Десятка Пентаклей",
+      "image": "TenOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Паж Пентаклей",
+      "image": "PageOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Рыцарь Пентаклей",
+      "image": "KnightOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Королева Пентаклей",
+      "image": "QueenOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Король Пентаклей",
+      "image": "KingOfPentacles.png",
+      "text": ""
+    }
+  ]
+    }
