@@ -28,9 +28,9 @@ TOKEN = os.getenv("BOT_TOKEN") or os.getenv("TOKEN")
 if not TOKEN:
     raise RuntimeError("Не найден BOT_TOKEN или TOKEN")
 
+
 CARDS_JSON = "cards.json"
 IMAGES_DIR = "cards"
-VOICES_DIR = "voices"
 
 TAROT_CARDS: List[Dict[str, Any]] = []
 
@@ -65,21 +65,13 @@ def field_is_quiet_text() -> str:
     return "Сегодня Поле молчит чуть тише обычного 🤍"
 
 
-async def send_card_voice(message: Message, card: Dict[str, Any]) -> None:
-    voice = str(card.get("voice", "")).strip()
+async def send_card_text(message: Message, card: Dict[str, Any]) -> None:
+    text = str(card.get("text", "")).strip()
 
-    if not voice:
+    if not text:
         return
 
-    voice_path = os.path.join(VOICES_DIR, voice)
-
-    if not os.path.exists(voice_path):
-        logger.warning("Voice file not found: %s", voice_path)
-        return
-
-    await message.answer_voice(
-        voice=FSInputFile(voice_path),
-    )
+    await message.answer(text)
 
 
 async def send_one_card(message: Message, card: Dict[str, Any]) -> None:
@@ -102,7 +94,7 @@ async def send_one_card(message: Message, card: Dict[str, Any]) -> None:
             reply_markup=draw_card_keyboard(),
         )
 
-    await send_card_voice(message, card)
+    await send_card_text(message, card)
 
 
 router = Router()
@@ -215,6 +207,8 @@ async def main():
         if health:
             health.close()
             await health.wait_closed()
+
+        await bot.session.close()
 
 
 if __name__ == "__main__":
