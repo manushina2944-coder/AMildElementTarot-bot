@@ -41,8 +41,8 @@
       "text": ""
     },
     {
-      "name": "Сила",
-      "image": "Strength.png",
+      "name": "Справедливость",
+      "image": "Justice.png",
       "text": ""
     },
     {
@@ -56,8 +56,8 @@
       "text": ""
     },
     {
-      "name": "Справедливость",
-      "image": "Justice.png",
+      "name": "Сила",
+      "image": "Strength.png",
       "text": ""
     },
     {
@@ -108,76 +108,6 @@
     {
       "name": "Мир",
       "image": "TheWorld.png",
-      "text": ""
-    },
-    {
-      "name": "Туз Жезлов",
-      "image": "AceOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Двойка Жезлов",
-      "image": "TwoOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Тройка Жезлов",
-      "image": "ThreeOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Четвёрка Жезлов",
-      "image": "FourOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Пятёрка Жезлов",
-      "image": "FiveOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Шестёрка Жезлов",
-      "image": "SixOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Семёрка Жезлов",
-      "image": "SevenOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Восьмёрка Жезлов",
-      "image": "EightOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Девятка Жезлов",
-      "image": "NineOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Десятка Жезлов",
-      "image": "TenOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Паж Жезлов",
-      "image": "PageOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Рыцарь Жезлов",
-      "image": "KnightOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Королева Жезлов",
-      "image": "QueenOfWands.png",
-      "text": ""
-    },
-    {
-      "name": "Король Жезлов",
-      "image": "KingOfWands.png",
       "text": ""
     },
     {
@@ -251,6 +181,76 @@
       "text": ""
     },
     {
+      "name": "Туз Пентаклей",
+      "image": "AceOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Двойка Пентаклей",
+      "image": "TwoOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Тройка Пентаклей",
+      "image": "ThreeOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Четвёрка Пентаклей",
+      "image": "FourOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Пятёрка Пентаклей",
+      "image": "FiveOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Шестёрка Пентаклей",
+      "image": "SixOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Семёрка Пентаклей",
+      "image": "SevenOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Восьмёрка Пентаклей",
+      "image": "EightOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Девятка Пентаклей",
+      "image": "NineOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Десятка Пентаклей",
+      "image": "TenOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Паж Пентаклей",
+      "image": "PageOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Рыцарь Пентаклей",
+      "image": "KnightOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Королева Пентаклей",
+      "image": "QueenOfPentacles.png",
+      "text": ""
+    },
+    {
+      "name": "Король Пентаклей",
+      "image": "KingOfPentacles.png",
+      "text": ""
+    },
+    {
       "name": "Туз Мечей",
       "image": "AceOfSwords.png",
       "text": ""
@@ -321,73 +321,73 @@
       "text": ""
     },
     {
-      "name": "Туз Пентаклей",
-      "image": "AceOfPentacles.png",
+      "name": "Туз Жезлов",
+      "image": "AceOfWands.png",
       "text": ""
     },
     {
-      "name": "Двойка Пентаклей",
-      "image": "TwoOfPentacles.png",
+      "name": "Двойка Жезлов",
+      "image": "TwoOfWands.png",
       "text": ""
     },
     {
-      "name": "Тройка Пентаклей",
-      "image": "ThreeOfPentacles.png",
+      "name": "Тройка Жезлов",
+      "image": "ThreeOfWands.png",
       "text": ""
     },
     {
-      "name": "Четвёрка Пентаклей",
-      "image": "FourOfPentacles.png",
+      "name": "Четвёрка Жезлов",
+      "image": "FourOfWands.png",
       "text": ""
     },
     {
-      "name": "Пятёрка Пентаклей",
-      "image": "FiveOfPentacles.png",
+      "name": "Пятёрка Жезлов",
+      "image": "FiveOfWands.png",
       "text": ""
     },
     {
-      "name": "Шестёрка Пентаклей",
-      "image": "SixOfPentacles.png",
+      "name": "Шестёрка Жезлов",
+      "image": "SixOfWands.png",
       "text": ""
     },
     {
-      "name": "Семёрка Пентаклей",
-      "image": "SevenOfPentacles.png",
+      "name": "Семёрка Жезлов",
+      "image": "SevenOfWands.png",
       "text": ""
     },
     {
-      "name": "Восьмёрка Пентаклей",
-      "image": "EightOfPentacles.png",
+      "name": "Восьмёрка Жезлов",
+      "image": "EightOfWands.png",
       "text": ""
     },
     {
-      "name": "Девятка Пентаклей",
-      "image": "NineOfPentacles.png",
+      "name": "Девятка Жезлов",
+      "image": "NineOfWands.png",
       "text": ""
     },
     {
-      "name": "Десятка Пентаклей",
-      "image": "TenOfPentacles.png",
+      "name": "Десятка Жезлов",
+      "image": "TenOfWands.png",
       "text": ""
     },
     {
-      "name": "Паж Пентаклей",
-      "image": "PageOfPentacles.png",
+      "name": "Паж Жезлов",
+      "image": "PageOfWands.png",
       "text": ""
     },
     {
-      "name": "Рыцарь Пентаклей",
-      "image": "KnightOfPentacles.png",
+      "name": "Рыцарь Жезлов",
+      "image": "KnightOfWands.png",
       "text": ""
     },
     {
-      "name": "Королева Пентаклей",
-      "image": "QueenOfPentacles.png",
+      "name": "Королева Жезлов",
+      "image": "QueenOfWands.png",
       "text": ""
     },
     {
-      "name": "Король Пентаклей",
-      "image": "KingOfPentacles.png",
+      "name": "Король Жезлов",
+      "image": "KingOfWands.png",
       "text": ""
     }
   ]
